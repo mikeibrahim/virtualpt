@@ -1,0 +1,38 @@
+/* universal */
+.hide-mobile {
+  display: none;
+}
+.hide-desktop {
+  display: block;
+}
+.title {
+  font-size: 13vw;
+  margin-top: 10vw;
+}
+.lg {
+  font-size: 7vw;
+}
+.med {
+  font-size: 3vw;
+}
+.med-sm {
+  font-size: 2.5vw;
+}
+.sm {
+  font-size: 1.75vw;
+}
+.lg-btn {
+  width: 15vw;
+  height: 15vw;
+}
+.med-btn {
+  width: 13vw;
+  height: 13vw;
+}
+.sm-btn {
+  width: 10vw;
+  height: 10vw;
+}
+.button {
+  border-radius: 10vw;
+}

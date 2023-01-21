@@ -1,0 +1,121 @@
+html,
+body {
+  overflow: hidden;
+}
+:root {
+  --primary-color: #57CC99;
+  --light-color: #FAFAFA;
+  --dark-color: #262B37;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  margin: 0;
+  padding: 0;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+/* colors */
+.primary-color {
+  color: var(--primary-color);
+}
+.light-color {
+  color: var(--light-color);
+}
+.dark-color {
+  color: var(--dark-color);
+}
+.primary-color-bg {
+  background-color: var(--primary-color);
+}
+.light-color-bg {
+  background-color: var(--light-color);
+}
+.dark-color-bg {
+  background-color: var(--dark-color);
+}
+
+
+/* universal */
+.title {
+  margin-left: 10vw;
+  font-weight: 200;
+  font-size: 6vw;
+  margin-top: 5vh;
+}
+.lg {
+  font-weight: 500;
+  white-space: nowrap;
+  font-size: 3vw;
+}
+.med {
+  font-weight: 250;
+  font-size: 2.5vw;
+}
+.med-sm {
+  font-weight: 200;
+  font-size: 2vw;
+}
+.sm {
+  font-weight: 100;
+  font-size: 1.6vw;
+}
+.lg-btn {
+  width: 13vw;
+  height: 4vw;
+}
+.med-btn {
+  width: 10vw;
+  height: 2.75vw;
+}
+.sm-btn {
+  width: 5vw;
+  height: 2.5vw;
+}
+.hide-desktop {
+  display: none;
+}
+.button {
+  border: none;
+  border-radius: 5vw;
+  transition: all 0.1s ease-in-out;
+}
+  .button:hover {
+    transform: scale(1.03);
+    cursor: pointer;
+  }
+.button-disabled {
+  opacity: 0.5;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* home */
+.home {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.home .button {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 22vw;
+  height: 10vh;
+  bottom: 60px;
+}
+  .home .button:hover {
+    transform: scale(1.03) translateX(-49%);
+  }
+
+
+/* workout */
+.workout {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
