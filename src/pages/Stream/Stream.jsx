@@ -2,7 +2,7 @@ import React from 'react';
 import Video from '../../components/Video.jsx';
 import * as tf from '@tensorflow/tfjs';
 
-export default function Workout() {
+export default function Stream() {
   let model;
 
   const threshold = 0.2;

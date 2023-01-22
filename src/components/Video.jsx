@@ -6,7 +6,7 @@ const constraints = {
     aspectRatio: 1,
     width: { max: 600 },
     height: { max: 600 },
-    facingMode: 'environment' // or 'environment'
+    // facingMode: 'environment' // or 'environment'
   }
 }
 
@@ -23,7 +23,17 @@ function Video(props) {
   else {
     navigator.mediaDevices.getUserMedia(constraints)
       .then(stream => { if (video.current && !video.current.srcObject) { video.current.srcObject = stream; } })
-    console.log(navigator.mediaDevices.enumerateDevices())
+      navigator.mediaDevices.enumerateDevices()
+      .then(devices => {
+        devices.forEach(device => {
+          console.log(`Device ID: ${device.deviceId}`);
+          console.log(`Device label: ${device.label}`);
+          console.log(`Device kind: ${device.kind}`);
+        });
+      })
+      .catch(error => {
+        console.error(error);
+      });    
   }
   return (
     <video id='video' ref={video} autoPlay playsInline onCanPlay={playVideo} />
