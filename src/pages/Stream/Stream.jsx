@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Video from '../../components/Video.jsx';
 import * as tf from '@tensorflow/tfjs';
 
-export default function Stream({ id, vpt, nextRep, alert, changePercentage }) {
+export default function Stream({ id, vpt, nextRep, alertCallback, changePercentageCallback }) {
   const [model, setModel] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const [repComplete, setRepComplete] = useState(false);
@@ -59,6 +59,14 @@ export default function Stream({ id, vpt, nextRep, alert, changePercentage }) {
     return Math.sqrt(Math.pow(line1.x - line2.x, 2) + Math.pow(line1.y - line2.y, 2));
   }
 
+  const getLineSlope = (line) => {
+    return Math.abs(line.y / line.x);
+  }
+
+  const getLine = (keypoint1, keypoint2) => {
+    return { x: keypoint2.position.x - keypoint1.position.x, y: keypoint2.position.y - keypoint1.position.y };
+  }
+
   const getAngleBetweenLines = (line1, line2) => {
     const angle_rad = Math.atan2(line1.x * line2.y - line1.y * line2.x, line1.x * line2.x + line1.y * line2.y);
     return 180 - Math.abs(angle_rad * 180 / Math.PI);
@@ -103,6 +111,7 @@ export default function Stream({ id, vpt, nextRep, alert, changePercentage }) {
         const { angle, line1, line2, length1, length2, endToEndLength } = getConnectionData(keypoint1, keypoint2, keypoint3, keypoint4);
         return Math.min((1 - endToEndLength / (length1 + length2)) / 0.5, 1);
       },
+      alert: (keypointData) => {}
     },
     "left_bicep_curl": {
       connections: [connections.l_bicep, connections.l_forearm],
@@ -115,7 +124,8 @@ export default function Stream({ id, vpt, nextRep, alert, changePercentage }) {
         const [keypoint3, keypoint4] = getKeypoints(keypointData, connections.l_forearm);
         const { angle, line1, line2, length1, length2, endToEndLength } = getConnectionData(keypoint1, keypoint2, keypoint3, keypoint4);
         return Math.min((1 - endToEndLength / (length1 + length2)) / 0.5, 1);
-      }
+      },
+      alert: (keypointData) => {}
     },
     "squats": {
       connections: [connections.r_thigh, connections.r_calf],
@@ -128,6 +138,14 @@ export default function Stream({ id, vpt, nextRep, alert, changePercentage }) {
         const [keypoint3, keypoint4] = getKeypoints(keypointData, connections.r_calf);
         const { angle, line1, line2, length1, length2, endToEndLength } = getConnectionData(keypoint1, keypoint2, keypoint3, keypoint4);
         return 1 - Math.max(angle - 90, 0) / 90;
+      },
+      alert: (keypointData) => {
+        const [keypoint1, keypoint2] = getKeypoints(keypointData, connections.r_side);
+        const line = getLine(keypoint1, keypoint2);
+        const slope = getLineSlope(line);
+        if (slope < 0.3) {
+          alertCallback('Keep your back straight')
+        }
       }
     },
   }
@@ -152,6 +170,7 @@ export default function Stream({ id, vpt, nextRep, alert, changePercentage }) {
       drawKeyLines(ctx, keypointData, threshold);
       highlightConnections(ctx, keypointData, vptExercise.highlightConnections, threshold);
       extension(ctx, keypointData, ...vptExercise.connections, vptExercise.calcExtension, vptExercise.endRepThreshold, vptExercise.startRepThreshold, threshold);
+      vptExercise.alert(keypointData)
     });
 
     // tf.nextFrame().then(() => detect(video, ctx, width, height));
@@ -234,15 +253,14 @@ export default function Stream({ id, vpt, nextRep, alert, changePercentage }) {
     if (keypoint1.score < threshold || keypoint2.score < threshold || keypoint3.score < threshold || keypoint4.score < threshold)
       return;
 
-    // const { angle, line1, line2, length1, length2, endToEndLength } = getConnectionData(keypoint1, keypoint2, keypoint3, keypoint4);
     const extensionAmount = calcExtension(keypointData);
     
-    changePercentage(extensionAmount * 100);
+    changePercentageCallback(extensionAmount * 100);
     
     if (extensionAmount > endRepThreshold && !repComplete) {
       nextRep();
-      if (repTime < 0.3) {
-        alert('You are going too fast! Try to slow down a bit.')
+      if (repTime < 0.2) {
+        alertCallback('You are going too fast! Try to slow down a bit.')
       }
       setRepComplete(true);
     } else if (extensionAmount < startRepThreshold) {
