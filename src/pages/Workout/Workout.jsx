@@ -1,8 +1,5 @@
 import React from 'react';
-import Text from '../components/Text.jsx';
-// import Button from '../components/Button.jsx';
-// import Route from "../components/Route.js";
-import Video from '../components/Video.jsx';
+import Video from '../../components/Video.jsx';
 import * as tf from '@tensorflow/tfjs';
 
 export default function Workout() {
@@ -10,7 +7,7 @@ export default function Workout() {
   const threshold = 0.2;
 
   tf.loadGraphModel(process.env.PUBLIC_URL + '/model/model.json').then((m) => {
-      model = m;
+    model = m;
   });
 
   const startDetecting = () => {
@@ -21,15 +18,15 @@ export default function Workout() {
     const height = video.videoHeight;
     canvas.width = width;
     canvas.height = height;
-    
-    detect(video, ctx, width, height)
+
+    detect(video, ctx, canvas.width, canvas.height)
   }
-  
+
   const detect = (video, ctx, width, height) => {
     tf.tidy(() => {
       let data = predict(video);
       let keypoints = dataToKeyPoints(data, width, height);
-      
+
       ctx.clearRect(0, 0, width, height);
       ctx.drawImage(video, 0, 0, width, height);
       drawKeypoints(ctx, keypoints, threshold);
@@ -116,13 +113,12 @@ export default function Workout() {
     }
   }
 
-      
-  
+
+
   return (
     <div className="workout dark-color-bg">
-      <Text className="title primary-color">Workout</Text>
-      <Video playCallback={startDetecting}/>
-      <canvas id="output"/>
+      <Video playCallback={startDetecting} />
+      <canvas id="output" width="100px" height="100px" />
     </div>
   );
 }

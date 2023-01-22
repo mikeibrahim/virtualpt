@@ -36,3 +36,22 @@
 .button {
   border-radius: 10vw;
 }
+
+/* Navbar */
+.footer {
+  position: fixed;
+  bottom: 0px;
+  width: 100%;
+}
+.navbar {
+  display: flex;
+  background: #333333;
+  justify-content: space-around;
+  padding: 5px 0px;
+}
+.navbar-icon {
+  padding: 5px;
+}
+.navbar-icon-image {
+  width: 30px;
+}
