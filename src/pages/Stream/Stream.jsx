@@ -54,7 +54,7 @@ export default function Stream({ id, vpt, nextRep, changePercentage }) {
       startRepThreshold: 0.05,
       endIncRepThreshold: 0.,
       calcExtension: (angle, c1Length, c2Length, endToEndLength) => {
-        return 1 - endToEndLength / (c1Length + c2Length);
+        return Math.min((1 - endToEndLength / (c1Length + c2Length)) / 0.5, 1);
       }
     },
   }
