@@ -59,19 +59,27 @@
 /* Workout */
 #info-container {
   position: absolute;
-  top: 30px;
-  left: 50px;
+  top: 20px;
+  margin: 0 20px;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
 }
 #workout-title {
-  font-size: 50pt;
+  font-size: 40pt;
   font-weight: bold;
-  margin: 10px 0;
+  margin: 7px 0;
 }
 #upcoming {
-  font-size: 30pt;
-  margin: 10px 0;
+  font-size: 25pt;
+  margin: 7px 0;
+}
+#sets-completed {
+  font-size: 15pt;
+  margin: 5px 0;
 }
 
+/* Progress Bars */
 @property --pgPercentage {
   syntax: "<number>";
   inherits: false;
@@ -82,8 +90,7 @@ div[role="progressbar"] {
   --fg: #369;
   --bg: #def;
   --pgPercentage: var(--value);
-  position: absolute;
-  top: 0;
+  margin-top: 10px;
   width: var(--size);
   height: var(--size);
   border-radius: 50%;
@@ -103,12 +110,4 @@ div[role="progressbar"] {
 div[role="progressbar"]::before {
   counter-reset: percentage var(--value);
   content: attr(data-center);
-}
-/* demo */
-body {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
 }
