@@ -5,9 +5,7 @@ import * as tf from '@tensorflow/tfjs';
 export default function Stream({ id, vpt, nextRep, changePercentage }) {
   const [model, setModel] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
-  console.log("isRunning:", isRunning)
-  let repComplete = false;
-  console.log("Stream Loaded:", model)
+  const [repComplete, setRepComplete] = useState(false);
 
   const threshold = 0.2;
   const keypoints = {
@@ -52,7 +50,6 @@ export default function Stream({ id, vpt, nextRep, changePercentage }) {
 
   const loadModel = () => {
     tf.loadGraphModel(process.env.PUBLIC_URL + '/model/model.json').then((m) => {
-      console.log('model loaded')
       setModel(m);
     })
   }
@@ -223,10 +220,10 @@ export default function Stream({ id, vpt, nextRep, changePercentage }) {
     changePercentage(extensionAmount * 100);
     
     if (extensionAmount > endRepThreshold && !repComplete) {
-      repComplete = true;
       nextRep();
+      setRepComplete(true);
     } else if (extensionAmount < startRepThreshold && repComplete) {
-      repComplete = false;
+      setRepComplete(false);
     }
     
     // draw the lines
@@ -295,7 +292,7 @@ export default function Stream({ id, vpt, nextRep, changePercentage }) {
 
       intervalId = setInterval(() => {
         detect(video, ctx, width, height);
-      }, 100);
+      }, 10);
     } else {
       clearInterval(intervalId);
     }
