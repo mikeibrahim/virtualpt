@@ -1,9 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Video from '../../components/Video.jsx';
 import * as tf from '@tensorflow/tfjs';
 
 export default function Stream({ id, vpt, nextRep, changePercentage }) {
-  let model, repComplete = 0;
+  const [model, setModel] = useState(null);
+  const [isRunning, setIsRunning] = useState(false);
+  console.log("isRunning:", isRunning)
+  let repComplete = false;
+  console.log("Stream Loaded:", model)
+
   const threshold = 0.2;
   const keypoints = {
     nose: 0,
@@ -24,7 +29,6 @@ export default function Stream({ id, vpt, nextRep, changePercentage }) {
     l_ankle: 15,
     r_ankle: 16,
   }
-
   const connections = {
     // [0, 1],
     // [0, 2],
@@ -44,6 +48,13 @@ export default function Stream({ id, vpt, nextRep, changePercentage }) {
     l_calf: [keypoints.l_knee, keypoints.l_ankle],
     r_thigh: [keypoints.r_hip, keypoints.r_knee],
     r_calf: [keypoints.r_knee, keypoints.r_ankle]
+  }
+
+  const loadModel = () => {
+    tf.loadGraphModel(process.env.PUBLIC_URL + '/model/model.json').then((m) => {
+      console.log('model loaded')
+      setModel(m);
+    })
   }
   
   const getEndToEndLength = (line1, line2) => {
@@ -125,33 +136,14 @@ export default function Stream({ id, vpt, nextRep, changePercentage }) {
   }
 
   const startDetecting = () => {
-    if (!model) {
-      console.log('model not loaded');
-      tf.loadGraphModel(process.env.PUBLIC_URL + '/model/model.json').then((m) => {
-        model = m;
-        console.log('model loaded')
-        startDetecting();
-      }).catch((err) => {
-        console.log(err);
-      });
-      return;
-    }
     if (!vpt) {
       console.log('vpt not supported');
       return;
     }
 
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('output');
-    const ctx = canvas.getContext('2d');
-    const width = video.videoWidth;
-    const height = video.videoHeight;
-    canvas.width = width;
-    canvas.height = height;
-
-    detect(video, ctx, canvas.width, canvas.height)
+    setIsRunning(true);
   }
-
+  
   const detect = (video, ctx, width, height) => {
     tf.tidy(() => {
       let data = predict(video);
@@ -164,7 +156,7 @@ export default function Stream({ id, vpt, nextRep, changePercentage }) {
       highlightConnections(ctx, keypointData, vptExercises[id].highlightConnections, threshold);
     });
 
-    tf.nextFrame().then(() => detect(video, ctx, width, height));
+    // tf.nextFrame().then(() => detect(video, ctx, width, height));
   }
 
   const predict = (video) => {
@@ -287,9 +279,33 @@ export default function Stream({ id, vpt, nextRep, changePercentage }) {
     }
   }
 
+  if (model && !isRunning) 
+    startDetecting();
+
+  useEffect(() => {
+    let intervalId;
+    if (isRunning) {
+      const video = document.getElementById('video');
+      const canvas = document.getElementById('output');
+      const ctx = canvas.getContext('2d');
+      const width = video.videoWidth;
+      const height = video.videoHeight;
+      canvas.width = width;
+      canvas.height = height;
+
+      intervalId = setInterval(() => {
+        detect(video, ctx, width, height);
+      }, 100);
+    } else {
+      clearInterval(intervalId);
+    }
+    return () => clearInterval(intervalId);
+  });
+
+
   return (
     <div className="workout dark-color-bg">
-      <Video playCallback={startDetecting} />
+      <Video playCallback={loadModel} />
       <canvas id="output" width="100px" height="100px" />
     </div>
   );
