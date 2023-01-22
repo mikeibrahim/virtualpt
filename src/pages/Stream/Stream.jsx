@@ -2,13 +2,8 @@ import React from 'react';
 import Video from '../../components/Video.jsx';
 import * as tf from '@tensorflow/tfjs';
 
-export default function Stream(props) {
-  let model;
-  const id = props.id;
-  const vpt = props.vpt;
-  const nextRep = props.nextRep;
-  const alert = props.alert;
-  let repComplete = 0;
+export default function Stream({ id, vpt, nextRep, changePercentage }) {
+  let model, repComplete = 0;
 
   const threshold = 0.2;
   const keypoints = {
@@ -176,7 +171,7 @@ export default function Stream(props) {
     const c2Length = Math.sqrt(Math.pow(c2Line.x, 2) + Math.pow(c2Line.y, 2));
     const endToEndLength = Math.sqrt(Math.pow(x1 - x4, 2) + Math.pow(y1 - y4, 2));
     const extensionAmount = calcExtension(angle, c1Length, c2Length, endToEndLength);
-    
+    changePercentage(extensionAmount * 100);
     if (extensionAmount > endRepThreshold && !repComplete) {
       repComplete = true;
       nextRep();

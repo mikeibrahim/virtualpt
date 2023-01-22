@@ -1,8 +1,6 @@
 import Stream from '../Stream/Stream';
 import workout from './workout.json';
-import React, { useRef, useState } from 'react';
-import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
-
+import React, { useRef } from 'react';
 
 export default function Workout() {
   let currReps = 0, currSets = 0, currWorkout = 0;
@@ -37,7 +35,11 @@ export default function Workout() {
         vpt={workout[currWorkout].vpt}
         nextRep={nextRep}
         alert={alert}
-        changePercentage={p => progressbar.style["--value"] === p} />
+        changePercentage={p => {
+          progressbar.current.style = `--value:${p}`;
+          console.log(progressbar.current.style);
+          console.log("p:", p);
+        }} />
       <div id="info-container">
         <p id="workout-title" ref={workoutTitle}>Current Set: {workout[0].title}</p>
         <p id="upcoming" ref={upcoming}>Upcoming: {workout[1].title}</p>
