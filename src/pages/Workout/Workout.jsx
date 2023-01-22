@@ -7,8 +7,7 @@ export default function Workout() {
   const workoutTitle = useRef(), upcoming = useRef();
   const setsCompleted = useRef(), progressbar = useRef();
   const [idvpt, setIdvpt] = useState([workout[0].id, workout[0].vpt]);
-
-  console.log("asdf", idvpt)
+  console.log("Workout Loaded")
   const nextRep = () => {
     console.log("nextRep");
     currReps++;
