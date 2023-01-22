@@ -54,7 +54,7 @@ export default function Stream({ id, vpt, nextRep, alertCallback, changePercenta
       setModel(m);
     })
   }
-  
+
   const getEndToEndLength = (line1, line2) => {
     return Math.sqrt(Math.pow(line1.x - line2.x, 2) + Math.pow(line1.y - line2.y, 2));
   }
@@ -111,7 +111,7 @@ export default function Stream({ id, vpt, nextRep, alertCallback, changePercenta
         const { angle, line1, line2, length1, length2, endToEndLength } = getConnectionData(keypoint1, keypoint2, keypoint3, keypoint4);
         return Math.min((1 - endToEndLength / (length1 + length2)) / 0.5, 1);
       },
-      alert: (keypointData) => {}
+      alert: (keypointData) => { }
     },
     "left_bicep_curl": {
       connections: [connections.l_bicep, connections.l_forearm],
@@ -125,7 +125,7 @@ export default function Stream({ id, vpt, nextRep, alertCallback, changePercenta
         const { angle, line1, line2, length1, length2, endToEndLength } = getConnectionData(keypoint1, keypoint2, keypoint3, keypoint4);
         return Math.min((1 - endToEndLength / (length1 + length2)) / 0.5, 1);
       },
-      alert: (keypointData) => {}
+      alert: (keypointData) => { }
     },
     "squats": {
       connections: [connections.r_thigh, connections.r_calf],
@@ -158,7 +158,7 @@ export default function Stream({ id, vpt, nextRep, alertCallback, changePercenta
 
     setIsRunning(true);
   }
-  
+
   const detect = (video, ctx, width, height) => {
     tf.tidy(() => {
       let data = predict(video);
@@ -254,12 +254,12 @@ export default function Stream({ id, vpt, nextRep, alertCallback, changePercenta
       return;
 
     const extensionAmount = calcExtension(keypointData);
-    
+
     changePercentageCallback(extensionAmount * 100);
-    
+
     if (extensionAmount > endRepThreshold && !repComplete) {
       nextRep();
-      if (repTime < 0.2) {
+      if (repTime < 0.5) {
         alertCallback('You are going too fast! Try to slow down a bit.')
       }
       setRepComplete(true);
@@ -270,7 +270,7 @@ export default function Stream({ id, vpt, nextRep, alertCallback, changePercenta
     }
   }
 
-  if (model && !isRunning) 
+  if (model && !isRunning)
     startDetecting();
 
   useEffect(() => {
