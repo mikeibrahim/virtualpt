@@ -80,13 +80,18 @@
 }
 
 /* Progress Bars */
+#progressbar-container {
+  display: flex;
+  width: 100%;
+  justify-content: space-around;
+}
 @property --pgPercentage {
   syntax: "<number>";
   inherits: false;
   initial-value: 0;
 }
 div[role="progressbar"] {
-  --size: 12rem;
+  --size: 9rem;
   --fg: #369;
   --bg: #def;
   --pgPercentage: var(--value);
@@ -94,8 +99,10 @@ div[role="progressbar"] {
   width: var(--size);
   height: var(--size);
   border-radius: 50%;
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   background: radial-gradient(
       closest-side,
       white 80%,
@@ -103,11 +110,13 @@ div[role="progressbar"] {
       white 0
     ),
     conic-gradient(var(--fg) calc(var(--pgPercentage) * 1%), var(--bg) 0);
-  font-family: Helvetica, Arial, sans-serif;
-  font-size: calc(var(--size) / 5);
   color: var(--fg);
 }
-div[role="progressbar"]::before {
-  counter-reset: percentage var(--value);
-  content: attr(data-center);
+div[role="progressbar"] .fraction {
+  margin: 0;
+  font-size: 27.5pt;
+}
+div[role="progressbar"] .units {
+  margin: 0;
+  font-size: 12.5pt;
 }
