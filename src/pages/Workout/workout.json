@@ -1,5 +1,12 @@
 [
   {
+    "id": "squats",
+    "title": "Squats",
+    "reps": 15,
+    "sets": 5,
+    "vpt": true
+  },
+  {
     "id": "right_bicep_curl",
     "title": "Right Bicep Curls",
     "reps": 2,
@@ -18,6 +25,6 @@
     "title": "Squats",
     "reps": 15,
     "sets": 5,
-    "vpt": false
+    "vpt": true
   }
 ]

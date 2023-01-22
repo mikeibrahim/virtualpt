@@ -50,11 +50,32 @@ export default function Stream({ id, vpt, nextRep, changePercentage }) {
   const vptExercises = {
     "right_bicep_curl": {
       connections: [connections.r_bicep, connections.r_forearm],
+      highlightConnections: [[connections.r_bicep, connections.r_forearm]],
       endRepThreshold: 0.5,
       startRepThreshold: 0.05,
       endIncRepThreshold: 0.,
       calcExtension: (angle, c1Length, c2Length, endToEndLength) => {
         return Math.min((1 - endToEndLength / (c1Length + c2Length)) / 0.5, 1);
+      }
+    },
+    "left_bicep_curl": {
+      connections: [connections.l_bicep, connections.l_forearm],
+      highlightConnections: [[connections.l_bicep, connections.l_forearm]],
+      endRepThreshold: 0.5,
+      startRepThreshold: 0.05,
+      endIncRepThreshold: 0.,
+      calcExtension: (angle, c1Length, c2Length, endToEndLength) => {
+        return Math.min((1 - endToEndLength / (c1Length + c2Length)) / 0.5, 1);
+      }
+    },
+    "squats": {
+      connections: [connections.r_thigh, connections.r_calf],
+      highlightConnections: [[connections.r_thigh, connections.r_calf], [connections.l_thigh, connections.l_calf]],
+      endRepThreshold: 0.5,
+      startRepThreshold: 0.05,
+      endIncRepThreshold: 0.,
+      calcExtension: (angle, c1Length, c2Length, endToEndLength) => {
+        return 1 - Math.max(angle - 90, 0) / 90
       }
     },
   }
@@ -96,6 +117,7 @@ export default function Stream({ id, vpt, nextRep, changePercentage }) {
       drawKeypoints(ctx, keypointData, threshold);
       drawKeyLines(ctx, keypointData, threshold);
       extension(ctx, keypointData, ...vptExercises[id].connections, vptExercises[id].calcExtension, vptExercises[id].endRepThreshold, vptExercises[id].startRepThreshold, threshold);
+      highlightConnections(ctx, keypointData, vptExercises[id].highlightConnections, threshold);
     });
 
     tf.nextFrame().then(() => detect(video, ctx, width, height));
@@ -182,7 +204,7 @@ export default function Stream({ id, vpt, nextRep, changePercentage }) {
     ctx.beginPath();
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
-    ctx.lineWidth = 10;
+    ctx.lineWidth = 13;
     ctx.strokeStyle = 'orange';
     ctx.stroke();
     ctx.beginPath();
@@ -207,6 +229,25 @@ export default function Stream({ id, vpt, nextRep, changePercentage }) {
     ctx.font = "30px Arial";
     ctx.fillStyle = "black";
     ctx.fillText(extensionAmount.toFixed(2), x4, y4);
+  }
+
+  const highlightConnections = (ctx, keypointData, connectionsList, threshold) => {
+    for (let i in connectionsList) {
+      for (let j in connectionsList[i]) {
+        const keypoint1 = keypointData[connectionsList[i][j][0]];
+        const keypoint2 = keypointData[connectionsList[i][j][1]];
+        if (keypoint1.score < threshold || keypoint2.score < threshold)
+          continue;
+        const { x: x1, y: y1 } = keypoint1.position;
+        const { x: x2, y: y2 } = keypoint2.position;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.lineWidth = 10;
+        ctx.strokeStyle = 'purple';
+        ctx.stroke();
+      }
+    }
   }
 
   return (
