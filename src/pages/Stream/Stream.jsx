@@ -4,13 +4,11 @@ import * as tf from '@tensorflow/tfjs';
 
 export default function Stream(props) {
   let model;
-  const exercise = props.exercise; // {name, reps, vpt}
-  const name = exercise.name;
-  const reps = exercise.reps;
-  const vpt = exercise.vpt;
-  const incrementReps = props.incrementReps;
+  const id = props.name;
+  const vpt = props.vpt;
+  const nextRep = props.nextRep;
   const alert = props.alert;
-  const repped = false;
+  let repComplete = 0;
 
   const threshold = 0.2;
   const keypoints = {
@@ -55,10 +53,13 @@ export default function Stream(props) {
   }
 
   const vptExercises = {
-    bicep_curl: {
+    "bicep_curl": {
       connections: [connections.r_bicep, connections.r_forearm],
-      // start: 
-      // end: 
+      endRepThreshold: 0.5,
+      startRepThreshold: 0.05,
+      calcExtension: (c1Length, c2Length, endToEndLength) => {
+        return 1 - endToEndLength / (c1Length + c2Length);
+      }
     },
   }
 
@@ -67,6 +68,15 @@ export default function Stream(props) {
   });
 
   const startDetecting = () => {
+    if (!model) {
+      console.log('model not loaded');
+      return;
+    }
+    if (!vpt) {
+      console.log('vpt not supported');
+      return;
+    }
+
     const video = document.getElementById('video');
     const canvas = document.getElementById('output');
     const ctx = canvas.getContext('2d');
@@ -86,7 +96,7 @@ export default function Stream(props) {
       ctx.drawImage(video, 0, 0, width, height);
       drawKeypoints(ctx, keypointData, threshold);
       drawKeyLines(ctx, keypointData, threshold);
-      extension(ctx, keypointData, connections.r_bicep, connections.r_forearm, threshold)
+      extension(ctx, keypointData, ...vptExercises[id].connections, vptExercises[id].calcExtension, vptExercises[id].endRepThreshold, vptExercises[id].startRepThreshold, threshold);
     });
 
     tf.nextFrame().then(() => detect(video, ctx, width, height));
@@ -142,7 +152,7 @@ export default function Stream(props) {
     }
   }
 
-  const extension = (ctx, keypointData, connection_1, connection_2, threshold) => {
+  const extension = (ctx, keypointData, connection_1, connection_2, calcExtension, endRepThreshold, startRepThreshold, threshold) => {
     // measure the angle between the two lines
     const keypoint1 = keypointData[connection_1[0]];
     const keypoint2 = keypointData[connection_1[1]];
@@ -154,12 +164,18 @@ export default function Stream(props) {
     const { x: x2, y: y2 } = keypoint2.position;
     const { x: x3, y: y3 } = keypoint3.position;
     const { x: x4, y: y4 } = keypoint4.position;
-    const line1 = { x: x2 - x1, y: y2 - y1 };
-    const line2 = { x: x4 - x3, y: y4 - y3 };
-    const line1Length = Math.sqrt(Math.pow(line1.x, 2) + Math.pow(line1.y, 2));
-    const line2Length = Math.sqrt(Math.pow(line2.x, 2) + Math.pow(line2.y, 2));
+    const c1Line = { x: x2 - x1, y: y2 - y1 };
+    const c2Line = { x: x4 - x3, y: y4 - y3 };
+    const c1Length = Math.sqrt(Math.pow(c1Line.x, 2) + Math.pow(c1Line.y, 2));
+    const c2Length = Math.sqrt(Math.pow(c2Line.x, 2) + Math.pow(c2Line.y, 2));
     const endToEndLength = Math.sqrt(Math.pow(x1 - x4, 2) + Math.pow(y1 - y4, 2));
-    const extensionAmount = endToEndLength / (line1Length + line2Length);
+    const extensionAmount = calcExtension(c1Length, c2Length, endToEndLength);
+    if (extensionAmount > endRepThreshold && !repComplete) {
+      repComplete = true;
+      nextRep();
+    } else if (extensionAmount < startRepThreshold && repComplete) {
+      repComplete = false;
+    }
     // draw the lines
     ctx.beginPath();
     ctx.moveTo(x1, y1);
@@ -173,16 +189,16 @@ export default function Stream(props) {
     ctx.lineWidth = 10;
     ctx.strokeStyle = 'orange';
     ctx.stroke();
-    // draw the angle
-    const angle = Math.atan2(line1.x * line2.y - line1.y * line2.x, line1.x * line2.x + line1.y * line2.y);
-    const angle_deg = 180 + angle * 180 / Math.PI;
-    ctx.beginPath();
-    ctx.arc(x2, y2, 10, 0, 2 * Math.PI);
-    ctx.fillStyle = 'orange';
-    ctx.fill();
-    ctx.font = "30px Arial";
-    ctx.fillStyle = "black";
-    ctx.fillText(angle_deg.toFixed(0), x2, y2);
+    // // draw the angle
+    // const angle = Math.atan2(c1Line.x * c2Line.y - c1Line.y * c2Line.x, c1Line.x * c2Line.x + c1Line.y * c2Line.y);
+    // const angle_deg = (180 + angle * 180 / Math.PI) % 180;
+    // ctx.beginPath();
+    // ctx.arc(x2, y2, 10, 0, 2 * Math.PI);
+    // ctx.fillStyle = 'orange';
+    // ctx.fill();
+    // ctx.font = "30px Arial";
+    // ctx.fillStyle = "black";
+    // ctx.fillText(angle_deg.toFixed(0), x2, y2);
     // draw the distance from the farthest points
     ctx.beginPath();
     ctx.arc(x4, y4, 10, 0, 2 * Math.PI);
