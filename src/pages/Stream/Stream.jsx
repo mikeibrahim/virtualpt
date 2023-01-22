@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import Video from '../../components/Video.jsx';
 import * as tf from '@tensorflow/tfjs';
 
-export default function Stream({ id, vpt, nextRep, changePercentage }) {
+export default function Stream({ id, vpt, nextRep, alert, changePercentage }) {
   const [model, setModel] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const [repComplete, setRepComplete] = useState(false);
+  let repTime = 0;
 
   const threshold = 0.2;
   const keypoints = {
@@ -102,7 +103,6 @@ export default function Stream({ id, vpt, nextRep, changePercentage }) {
         const { angle, line1, line2, length1, length2, endToEndLength } = getConnectionData(keypoint1, keypoint2, keypoint3, keypoint4);
         return Math.min((1 - endToEndLength / (length1 + length2)) / 0.5, 1);
       },
-
     },
     "left_bicep_curl": {
       connections: [connections.l_bicep, connections.l_forearm],
@@ -145,12 +145,13 @@ export default function Stream({ id, vpt, nextRep, changePercentage }) {
     tf.tidy(() => {
       let data = predict(video);
       let keypointData = dataToKeypointData(data, width, height);
+      const vptExercise = vptExercises[id];
       ctx.clearRect(0, 0, width, height);
       ctx.drawImage(video, 0, 0, width, height);
       drawKeypoints(ctx, keypointData, threshold);
       drawKeyLines(ctx, keypointData, threshold);
-      extension(ctx, keypointData, ...vptExercises[id].connections, vptExercises[id].calcExtension, vptExercises[id].endRepThreshold, vptExercises[id].startRepThreshold, threshold);
-      highlightConnections(ctx, keypointData, vptExercises[id].highlightConnections, threshold);
+      highlightConnections(ctx, keypointData, vptExercise.highlightConnections, threshold);
+      extension(ctx, keypointData, ...vptExercise.connections, vptExercise.calcExtension, vptExercise.endRepThreshold, vptExercise.startRepThreshold, threshold);
     });
 
     // tf.nextFrame().then(() => detect(video, ctx, width, height));
@@ -206,57 +207,6 @@ export default function Stream({ id, vpt, nextRep, changePercentage }) {
     }
   }
 
-  const extension = (ctx, keypointData, connection_1, connection_2, calcExtension, endRepThreshold, startRepThreshold, threshold) => {
-    // get the keypoints
-    const [keypoint1, keypoint2] = getKeypoints(keypointData, connection_1);
-    const [keypoint3, keypoint4] = getKeypoints(keypointData, connection_2);
-
-    if (keypoint1.score < threshold || keypoint2.score < threshold || keypoint3.score < threshold || keypoint4.score < threshold)
-      return;
-
-    // const { angle, line1, line2, length1, length2, endToEndLength } = getConnectionData(keypoint1, keypoint2, keypoint3, keypoint4);
-    const extensionAmount = calcExtension(keypointData);
-    
-    changePercentage(extensionAmount * 100);
-    
-    if (extensionAmount > endRepThreshold && !repComplete) {
-      nextRep();
-      setRepComplete(true);
-    } else if (extensionAmount < startRepThreshold && repComplete) {
-      setRepComplete(false);
-    }
-    
-    // draw the lines
-    ctx.beginPath();
-    ctx.moveTo(keypoint1.position.x, keypoint1.position.y);
-    ctx.lineTo(keypoint2.position.x, keypoint2.position.y);
-    ctx.lineWidth = 13;
-    ctx.strokeStyle = 'orange';
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(keypoint3.position.x, keypoint3.position.y);
-    ctx.lineTo(keypoint4.position.x, keypoint4.position.y);
-    ctx.lineWidth = 10;
-    ctx.strokeStyle = 'orange';
-    ctx.stroke();
-    // // draw the angle
-    // ctx.beginPath();
-    // ctx.arc(keypoint2.position.x, keypoint2.position.y, 10, 0, 2 * Math.PI);
-    // ctx.fillStyle = 'orange';
-    // ctx.fill();
-    // ctx.font = "30px Arial";
-    // ctx.fillStyle = "black";
-    // ctx.fillText(angle.toFixed(0), keypoint2.position.x, keypoint2.position.y);
-    // draw the distance from the farthest points
-    ctx.beginPath();
-    ctx.arc(keypoint4.position.x, keypoint4.position.y, 10, 0, 2 * Math.PI);
-    ctx.fillStyle = 'green';
-    ctx.fill();
-    ctx.font = "30px Arial";
-    ctx.fillStyle = "black";
-    ctx.fillText(extensionAmount.toFixed(2), keypoint4.position.x, keypoint4.position.y);
-  }
-
   const highlightConnections = (ctx, keypointData, connectionsList, threshold) => {
     for (let i in connectionsList) {
       for (let j in connectionsList[i]) {
@@ -276,11 +226,39 @@ export default function Stream({ id, vpt, nextRep, changePercentage }) {
     }
   }
 
+  const extension = (ctx, keypointData, connection_1, connection_2, calcExtension, endRepThreshold, startRepThreshold, threshold) => {
+    // get the keypoints
+    const [keypoint1, keypoint2] = getKeypoints(keypointData, connection_1);
+    const [keypoint3, keypoint4] = getKeypoints(keypointData, connection_2);
+
+    if (keypoint1.score < threshold || keypoint2.score < threshold || keypoint3.score < threshold || keypoint4.score < threshold)
+      return;
+
+    // const { angle, line1, line2, length1, length2, endToEndLength } = getConnectionData(keypoint1, keypoint2, keypoint3, keypoint4);
+    const extensionAmount = calcExtension(keypointData);
+    
+    changePercentage(extensionAmount * 100);
+    
+    if (extensionAmount > endRepThreshold && !repComplete) {
+      nextRep();
+      if (repTime < 0.3) {
+        alert('You are going too fast! Try to slow down a bit.')
+      }
+      setRepComplete(true);
+    } else if (extensionAmount < startRepThreshold) {
+      repTime = 0;
+      if (repComplete)
+        setRepComplete(false);
+    }
+  }
+
   if (model && !isRunning) 
     startDetecting();
 
   useEffect(() => {
     let intervalId;
+    let previousTime = performance.now();
+
     if (isRunning) {
       const video = document.getElementById('video');
       const canvas = document.getElementById('output');
@@ -291,7 +269,11 @@ export default function Stream({ id, vpt, nextRep, changePercentage }) {
       canvas.height = height;
 
       intervalId = setInterval(() => {
-        detect(video, ctx, width, height);
+        const currentTime = performance.now();
+        const deltaTime = currentTime - previousTime;
+        detect(video, ctx, width, height, deltaTime);
+        previousTime = currentTime;
+        repTime += deltaTime / 1000;
       }, 10);
     } else {
       clearInterval(intervalId);

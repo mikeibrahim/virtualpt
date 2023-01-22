@@ -34,7 +34,7 @@ export default function Workout() {
 
   const alert = () => {
     console.log("alert");
-    alerts.current.appendChild();
+    // alerts.current.appendChild();
   };
 
   return (
