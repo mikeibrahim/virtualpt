@@ -55,3 +55,19 @@
 .navbar-icon-image {
   width: 30px;
 }
+
+/* Workout */
+#info-container {
+  position: absolute;
+  top: 30px;
+  left: 50px;
+}
+#workout-title {
+  font-size: 50pt;
+  font-weight: bold;
+  margin: 10px 0;
+}
+#upcoming {
+  font-size: 30pt;
+  margin: 10px 0;
+}

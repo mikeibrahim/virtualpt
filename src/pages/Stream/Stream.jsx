@@ -4,10 +4,8 @@ import * as tf from '@tensorflow/tfjs';
 
 export default function Stream(props) {
   let model;
-  const exercise = props.exercise; // {name, reps, vpt}
-  const name = exercise.name;
-  const reps = exercise.reps;
-  const vpt = exercise.vpt;
+  const name = props.name;
+  const vpt = props.vpt;
   const incrementReps = props.incrementReps;
   const alert = props.alert;
   const repped = false;

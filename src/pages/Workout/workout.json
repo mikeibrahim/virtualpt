@@ -1,12 +1,21 @@
 [
   {
-    "name": "bicep_curl",
+    "id": "right_bicep_curl",
+    "title": "Right Bicep Curls",
     "reps": 8,
     "sets": 3,
     "vpt": true
   },
   {
-    "name": "squats",
+    "id": "left_bicep_curl",
+    "title": "Left Bicep Curls",
+    "reps": 8,
+    "sets": 3,
+    "vpt": true
+  },
+  {
+    "id": "squats",
+    "title": "Squats",
     "reps": 15,
     "sets": 5,
     "vpt": false
