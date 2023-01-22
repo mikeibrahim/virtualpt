@@ -2,11 +2,13 @@
   {
     "name": "bicep_curl",
     "reps": 8,
-    "sets": 3
+    "sets": 3,
+    "vpt": true
   },
   {
     "name": "squats",
     "reps": 15,
-    "sets": 5
+    "sets": 5,
+    "vpt": false
   }
 ]

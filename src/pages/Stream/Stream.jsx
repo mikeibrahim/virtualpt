@@ -10,6 +10,7 @@ export default function Stream(props) {
   const vpt = exercise.vpt;
   const incrementReps = props.incrementReps;
   const alert = props.alert;
+  const repped = false;
 
   const threshold = 0.2;
   const keypoints = {
@@ -56,6 +57,8 @@ export default function Stream(props) {
   const vptExercises = {
     bicep_curl: {
       connections: [connections.r_bicep, connections.r_forearm],
+      // start: 
+      // end: 
     },
   }
 
