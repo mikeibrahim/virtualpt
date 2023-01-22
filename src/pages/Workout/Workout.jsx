@@ -37,8 +37,6 @@ export default function Workout() {
         alert={alert}
         changePercentage={p => {
           progressbar.current.style = `--value:${p}`;
-          console.log(progressbar.current.style);
-          console.log("p:", p);
         }} />
       <div id="info-container">
         <p id="workout-title" ref={workoutTitle}>Current Set: {workout[0].title}</p>
