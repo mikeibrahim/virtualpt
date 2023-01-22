@@ -4,7 +4,6 @@ import * as tf from '@tensorflow/tfjs';
 
 export default function Stream({ id, vpt, nextRep, changePercentage }) {
   let model, repComplete = 0;
-
   const threshold = 0.2;
   const keypoints = {
     nose: 0,
