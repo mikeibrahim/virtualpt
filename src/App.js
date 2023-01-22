@@ -5,7 +5,7 @@ import {
   Route,
 } from "react-router-dom";
 import Main from './pages/Main.jsx';
-
+import Workout from "./pages/Workout/Workout.jsx";
 
 function delay(fn, ms) {
   let timer
@@ -34,6 +34,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Main />} />
+        <Route path="/Workout" element={<Workout />} />
       </Routes>
     </BrowserRouter>
   );
