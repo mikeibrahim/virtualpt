@@ -46,6 +46,41 @@ export default function Stream({ id, vpt, nextRep, changePercentage }) {
     r_thigh: [keypoints.r_hip, keypoints.r_knee],
     r_calf: [keypoints.r_knee, keypoints.r_ankle]
   }
+  
+  const getEndToEndLength = (line1, line2) => {
+    return Math.sqrt(Math.pow(line1.x - line2.x, 2) + Math.pow(line1.y - line2.y, 2));
+  }
+
+  const getAngleBetweenLines = (line1, line2) => {
+    const angle_rad = Math.atan2(line1.x * line2.y - line1.y * line2.x, line1.x * line2.x + line1.y * line2.y);
+    return 180 - Math.abs(angle_rad * 180 / Math.PI);
+  }
+
+  const getLength = (line) => {
+    return Math.sqrt(Math.pow(line.x, 2) + Math.pow(line.y, 2));
+  }
+
+  const getKeypoints = (keypointData, connection) => {
+    return [
+      keypointData[connection[0]],
+      keypointData[connection[1]]
+    ];
+  }
+
+  const getConnectionData = (keypoint1, keypoint2, keypoint3, keypoint4) => {
+    // returns angle, line1, line2, length1, length2, endToEndLength
+    const { x: x1, y: y1 } = keypoint1.position;
+    const { x: x2, y: y2 } = keypoint2.position;
+    const { x: x3, y: y3 } = keypoint3.position;
+    const { x: x4, y: y4 } = keypoint4.position;
+    const line1 = { x: x2 - x1, y: y2 - y1 };
+    const line2 = { x: x4 - x3, y: y4 - y3 };
+    const angle = getAngleBetweenLines(line1, line2);
+    const length1 = getLength(line1);
+    const length2 = getLength(line2);
+    const endToEndLength = getEndToEndLength({ x: x1, y: y1 }, { x: x4, y: y4 });
+    return { angle, line1, line2, length1, length2, endToEndLength };
+  }
 
   const vptExercises = {
     "right_bicep_curl": {
@@ -53,19 +88,26 @@ export default function Stream({ id, vpt, nextRep, changePercentage }) {
       highlightConnections: [[connections.r_bicep, connections.r_forearm]],
       endRepThreshold: 0.5,
       startRepThreshold: 0.05,
-      endIncRepThreshold: 0.,
-      calcExtension: (angle, c1Length, c2Length, endToEndLength) => {
-        return Math.min((1 - endToEndLength / (c1Length + c2Length)) / 0.5, 1);
-      }
+      calcExtension: (keypointData) => {
+        // return Math.min((1 - endToEndLength / (length1 + length2)) / 0.5, 1);
+        const [keypoint1, keypoint2] = getKeypoints(keypointData, connections.r_bicep);
+        const [keypoint3, keypoint4] = getKeypoints(keypointData, connections.r_forearm);
+        const { angle, line1, line2, length1, length2, endToEndLength } = getConnectionData(keypoint1, keypoint2, keypoint3, keypoint4);
+        return Math.min((1 - endToEndLength / (length1 + length2)) / 0.5, 1);
+      },
+
     },
     "left_bicep_curl": {
       connections: [connections.l_bicep, connections.l_forearm],
       highlightConnections: [[connections.l_bicep, connections.l_forearm]],
       endRepThreshold: 0.5,
       startRepThreshold: 0.05,
-      endIncRepThreshold: 0.,
-      calcExtension: (angle, c1Length, c2Length, endToEndLength) => {
-        return Math.min((1 - endToEndLength / (c1Length + c2Length)) / 0.5, 1);
+      calcExtension: (keypointData) => {
+        // return Math.min((1 - endToEndLength / (length1 + length2)) / 0.5, 1);
+        const [keypoint1, keypoint2] = getKeypoints(keypointData, connections.l_bicep);
+        const [keypoint3, keypoint4] = getKeypoints(keypointData, connections.l_forearm);
+        const { angle, line1, line2, length1, length2, endToEndLength } = getConnectionData(keypoint1, keypoint2, keypoint3, keypoint4);
+        return Math.min((1 - endToEndLength / (length1 + length2)) / 0.5, 1);
       }
     },
     "squats": {
@@ -73,9 +115,12 @@ export default function Stream({ id, vpt, nextRep, changePercentage }) {
       highlightConnections: [[connections.r_thigh, connections.r_calf], [connections.l_thigh, connections.l_calf]],
       endRepThreshold: 0.5,
       startRepThreshold: 0.05,
-      endIncRepThreshold: 0.,
-      calcExtension: (angle, c1Length, c2Length, endToEndLength) => {
-        return 1 - Math.max(angle - 90, 0) / 90
+      calcExtension: (keypointData) => {
+        // return 1 - Math.max(angle - 90, 0) / 90
+        const [keypoint1, keypoint2] = getKeypoints(keypointData, connections.r_thigh);
+        const [keypoint3, keypoint4] = getKeypoints(keypointData, connections.r_calf);
+        const { angle, line1, line2, length1, length2, endToEndLength } = getConnectionData(keypoint1, keypoint2, keypoint3, keypoint4);
+        return 1 - Math.max(angle - 90, 0) / 90;
       }
     },
   }
@@ -174,61 +219,54 @@ export default function Stream({ id, vpt, nextRep, changePercentage }) {
   }
 
   const extension = (ctx, keypointData, connection_1, connection_2, calcExtension, endRepThreshold, startRepThreshold, threshold) => {
-    // measure the angle between the two lines
-    const keypoint1 = keypointData[connection_1[0]];
-    const keypoint2 = keypointData[connection_1[1]];
-    const keypoint3 = keypointData[connection_2[0]];
-    const keypoint4 = keypointData[connection_2[1]];
+    // get the keypoints
+    const [keypoint1, keypoint2] = getKeypoints(keypointData, connection_1);
+    const [keypoint3, keypoint4] = getKeypoints(keypointData, connection_2);
+
     if (keypoint1.score < threshold || keypoint2.score < threshold || keypoint3.score < threshold || keypoint4.score < threshold)
       return;
-    const { x: x1, y: y1 } = keypoint1.position;
-    const { x: x2, y: y2 } = keypoint2.position;
-    const { x: x3, y: y3 } = keypoint3.position;
-    const { x: x4, y: y4 } = keypoint4.position;
-    const c1Line = { x: x2 - x1, y: y2 - y1 };
-    const c2Line = { x: x4 - x3, y: y4 - y3 };
-    const angle_rad = Math.atan2(c1Line.x * c2Line.y - c1Line.y * c2Line.x, c1Line.x * c2Line.x + c1Line.y * c2Line.y);
-    const angle = 180 - Math.abs(angle_rad * 180 / Math.PI);
-    const c1Length = Math.sqrt(Math.pow(c1Line.x, 2) + Math.pow(c1Line.y, 2));
-    const c2Length = Math.sqrt(Math.pow(c2Line.x, 2) + Math.pow(c2Line.y, 2));
-    const endToEndLength = Math.sqrt(Math.pow(x1 - x4, 2) + Math.pow(y1 - y4, 2));
-    const extensionAmount = calcExtension(angle, c1Length, c2Length, endToEndLength);
+
+    // const { angle, line1, line2, length1, length2, endToEndLength } = getConnectionData(keypoint1, keypoint2, keypoint3, keypoint4);
+    const extensionAmount = calcExtension(keypointData);
+    
     changePercentage(extensionAmount * 100);
+    
     if (extensionAmount > endRepThreshold && !repComplete) {
       repComplete = true;
       nextRep();
     } else if (extensionAmount < startRepThreshold && repComplete) {
       repComplete = false;
     }
+    
     // draw the lines
     ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
+    ctx.moveTo(keypoint1.position.x, keypoint1.position.y);
+    ctx.lineTo(keypoint2.position.x, keypoint2.position.y);
     ctx.lineWidth = 13;
     ctx.strokeStyle = 'orange';
     ctx.stroke();
     ctx.beginPath();
-    ctx.moveTo(x3, y3);
-    ctx.lineTo(x4, y4);
+    ctx.moveTo(keypoint3.position.x, keypoint3.position.y);
+    ctx.lineTo(keypoint4.position.x, keypoint4.position.y);
     ctx.lineWidth = 10;
     ctx.strokeStyle = 'orange';
     ctx.stroke();
-    // draw the angle
-    ctx.beginPath();
-    ctx.arc(x2, y2, 10, 0, 2 * Math.PI);
-    ctx.fillStyle = 'orange';
-    ctx.fill();
-    ctx.font = "30px Arial";
-    ctx.fillStyle = "black";
-    ctx.fillText(angle.toFixed(0), x2, y2);
+    // // draw the angle
+    // ctx.beginPath();
+    // ctx.arc(keypoint2.position.x, keypoint2.position.y, 10, 0, 2 * Math.PI);
+    // ctx.fillStyle = 'orange';
+    // ctx.fill();
+    // ctx.font = "30px Arial";
+    // ctx.fillStyle = "black";
+    // ctx.fillText(angle.toFixed(0), keypoint2.position.x, keypoint2.position.y);
     // draw the distance from the farthest points
     ctx.beginPath();
-    ctx.arc(x4, y4, 10, 0, 2 * Math.PI);
+    ctx.arc(keypoint4.position.x, keypoint4.position.y, 10, 0, 2 * Math.PI);
     ctx.fillStyle = 'green';
     ctx.fill();
     ctx.font = "30px Arial";
     ctx.fillStyle = "black";
-    ctx.fillText(extensionAmount.toFixed(2), x4, y4);
+    ctx.fillText(extensionAmount.toFixed(2), keypoint4.position.x, keypoint4.position.y);
   }
 
   const highlightConnections = (ctx, keypointData, connectionsList, threshold) => {
