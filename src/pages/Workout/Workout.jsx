@@ -3,16 +3,18 @@ import workout from './workout.json';
 import React, { useState } from 'react';
 
 export default function Workout() {
-  let [currReps, changeRep] = useState(0);
-  let [currSets, changeSet] = useState(0);
-  let [currWorkout, changeWorkout] = useState(0);
-  let { id, title, reps, sets, vpt } = workout[0];
+  const [currReps, changeRep] = useState(0);
+  const [currSets, changeSets] = useState(0);
+  const [currWorkout, changeWorkout] = useState(0);
+  const { id, title, reps, sets, vpt } = workout[0];
 
   const nextRep = () => {
     console.log("nextRep");
-    changeRep((currReps + 1) % reps);
-    if (currReps === 0) changeSet(currSets + 1);
-    if (currSets === sets) {
+    changeRep((currReps + 1));
+    if ((currReps + 1) % reps === 0) {
+      changeSets(currSets + 1);
+    }
+    if (currSets + 1 === sets) {
       changeWorkout(currWorkout + 1);
       id = workout[currWorkout].name;
       title = workout[currWorkout].title;
@@ -37,7 +39,7 @@ export default function Workout() {
       {
         vpt ?
           <div id="info-container">
-            <p id="workout-title">Current Set: {title}</p>
+            <p id="workout-title">Current Set: {currReps}</p>
             <p id="upcoming">Upcoming: {currWorkout + 1 < workout.length ? workout[currWorkout + 1].title : "Last set!"}</p>
           </div> :
           <button id="next-button">Next →</button>

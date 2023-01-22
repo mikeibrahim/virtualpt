@@ -53,7 +53,7 @@ export default function Stream(props) {
   }
 
   const vptExercises = {
-    "bicep_curl": {
+    "right_bicep_curl": {
       connections: [connections.r_bicep, connections.r_forearm],
       endRepThreshold: 0.5,
       startRepThreshold: 0.05,
