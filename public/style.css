@@ -3,16 +3,18 @@ body {
   overflow: hidden;
 }
 :root {
-  --primary-color: #57CC99;
-  --light-color: #FAFAFA;
-  --dark-color: #262B37;
+  --primary-color: #57cc99;
+  --light-color: #fafafa;
+  --dark-color: #262b37;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
   margin: 0;
   padding: 0;
-    -webkit-tap-highlight-color: rgba(0,0,0,0);
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
 /* colors */
@@ -34,7 +36,6 @@ body {
 .dark-color-bg {
   background-color: var(--dark-color);
 }
-
 
 /* universal */
 .title {
@@ -80,10 +81,10 @@ body {
   border-radius: 5vw;
   transition: all 0.1s ease-in-out;
 }
-  .button:hover {
-    transform: scale(1.03);
-    cursor: pointer;
-  }
+.button:hover {
+  transform: scale(1.03);
+  cursor: pointer;
+}
 .button-disabled {
   opacity: 0.5;
   cursor: default;
@@ -106,10 +107,9 @@ body {
   height: 10vh;
   bottom: 60px;
 }
-  .home .button:hover {
-    transform: scale(1.03) translateX(-49%);
-  }
-
+.home .button:hover {
+  transform: scale(1.03) translateX(-49%);
+}
 
 /* workout */
 .workout {
