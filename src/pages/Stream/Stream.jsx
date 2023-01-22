@@ -136,7 +136,7 @@ export default function Stream({ id, vpt, nextRep, alertCallback, changePercenta
         // return 1 - Math.max(angle - 90, 0) / 90
         const [keypoint1, keypoint2] = getKeypoints(keypointData, connections.r_thigh);
         const [keypoint3, keypoint4] = getKeypoints(keypointData, connections.r_calf);
-        const { angle, line1, line2, length1, length2, endToEndLength } = getConnectionData(keypoint1, keypoint2, keypoint3, keypoint4);
+        const { angle } = getConnectionData(keypoint1, keypoint2, keypoint3, keypoint4);
         return 1 - Math.max(angle - 90, 0) / 90;
       },
       alert: (keypointData) => {

@@ -127,5 +127,18 @@ div[role="progressbar"] .units {
 #alert-container {
   position: absolute;
   bottom: 0;
-  margin: 10px;
+  margin: 20px;
+}
+.alert {
+  display: flex;
+  align-items: center;
+  font-size: 30pt;
+  padding: 15px 20px;
+  background: rgb(255 92 92 / 30%);
+  border-radius: 10px;
+  border: 3px solid red;
+}
+.alert img {
+  width: 50px;
+  margin-right: 20px;
 }

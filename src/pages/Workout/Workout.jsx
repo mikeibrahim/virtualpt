@@ -6,9 +6,9 @@ import warning from './warning.svg';
 export default function Workout() {
   let currReps = 0, currSets = 0;
   const [currWorkout, setWorkout] = useState(0);
+  const [alerts, setAlerts] = useState([]);
   const workoutTitle = useRef(), upcoming = useRef();
   const progressbar1 = useRef(), progressbar2 = useRef(), progressbar3 = useRef();
-  const alerts = useRef();
 
   const nextRep = () => {
     console.log("nextRep");
@@ -33,8 +33,10 @@ export default function Workout() {
   };
 
   const alert = message => {
-    console.log(`alert: ${message}`);
-    // alerts.current.appendChild(<Alert message={message} />);
+    console.log(message);
+    console.log(`Alert: ${message}`);
+    setAlerts([...alerts, message]);
+    setTimeout(() => setAlerts(alerts.slice(0, -1)), 5000);
   };
 
   return (
@@ -69,16 +71,17 @@ export default function Workout() {
           </div>
         </div>
       </div>
-      <div id="alert-container" ref={alerts}></div>
+      <div id="alert-container">
+        {alerts.map((a, i) => <Alert message={a} key={i} />)}
+      </div>
       {/* <button id="next-button">Next →</button> */}
       <canvas />
     </>
   );
 }
 
-const Alert = message => (
-  <div class="alert">
+const Alert = ({ message }) =>
+  <div className="alert">
     <img src={warning} alt="Alert Icon" />
     {message}
   </div>
-);
