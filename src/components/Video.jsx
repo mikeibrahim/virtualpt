@@ -20,10 +20,11 @@ function Video(props) {
 
   if (!navigator.mediaDevices)
     console.log("Sorry, getUserMedia is not supported");
-  else
+  else {
     navigator.mediaDevices.getUserMedia(constraints)
       .then(stream => { if (video.current && !video.current.srcObject) { video.current.srcObject = stream; } })
-
+    console.log(navigator.mediaDevices.enumerateDevices())
+  }
   return (
     <video id='video' ref={video} autoPlay playsInline onCanPlay={playVideo} />
   )
