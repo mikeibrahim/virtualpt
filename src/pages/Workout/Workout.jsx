@@ -41,8 +41,8 @@ export default function Workout() {
     <>
       <Stream
         id={workout[currWorkout].id} vpt={workout[currWorkout].vpt}
-        nextRep={nextRep} alert={alert}
-        changePercentage={p => {
+        nextRep={nextRep} alertCallback={alert}
+        changePercentageCallback={p => {
           progressbar1.current.children[0].innerText = `${Math.round(p)}%`;
           progressbar1.current.style = `--value:${p}`;
         }} />
