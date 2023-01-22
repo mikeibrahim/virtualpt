@@ -6,6 +6,7 @@ export default function Workout() {
   let currReps = 0, currSets = 0, currWorkout = 0;
   const workoutTitle = useRef(), upcoming = useRef();
   const progressbar1 = useRef(), progressbar2 = useRef(), progressbar3 = useRef();
+  const alerts = useRef();
   const [idvpt, setIdvpt] = useState([workout[0].id, workout[0].vpt]);
 
   const nextRep = () => {
@@ -33,6 +34,7 @@ export default function Workout() {
 
   const alert = () => {
     console.log("alert");
+    alerts.current.appendChild();
   };
 
   return (
@@ -64,6 +66,7 @@ export default function Workout() {
           </div>
         </div>
       </div>
+      <div id="alerts" ref={alerts}></div>
       {/* <button id="next-button">Next →</button> */}
       <canvas />
     </>
