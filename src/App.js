@@ -4,8 +4,7 @@ import {
   Routes,
   Route,
 } from "react-router-dom";
-import Home from './pages/Home.jsx';
-import Workout from "./pages/Workout.jsx";
+import Main from './pages/Main.jsx';
 
 
 function delay(fn, ms) {
@@ -34,8 +33,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="workout" element={<Workout />} />
+        <Route path="/" element={<Main />} />
       </Routes>
     </BrowserRouter>
   );
