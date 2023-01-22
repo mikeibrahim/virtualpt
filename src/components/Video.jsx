@@ -7,6 +7,7 @@ const constraints = {
     width: { max: 600 },
     height: { max: 600 },
     // facingMode: 'environment' // or 'environment'
+    // deviceId: { exact: '' }
   }
 }
 
@@ -17,20 +18,23 @@ function Video(props) {
     video.current.play()
     props.playCallback()
   };
-
+  
+  navigator.mediaDevices.enumerateDevices()
+  .then(devices => {
+    devices.forEach(device => {
+      if (device.kind === 'videoinput') {
+        console.log(device.deviceId);
+        console.log(device.label);
+        console.log(device.kind);
+      }
+    });
+  })
+  
   if (!navigator.mediaDevices)
     console.log("Sorry, getUserMedia is not supported");
   else {
     navigator.mediaDevices.getUserMedia(constraints)
       .then(stream => { if (video.current && !video.current.srcObject) { video.current.srcObject = stream; } })
-      navigator.mediaDevices.enumerateDevices()
-      .then(devices => {
-        devices.forEach(device => {
-          console.log(`Device ID: ${device.deviceId}`);
-          console.log(`Device label: ${device.label}`);
-          console.log(`Device kind: ${device.kind}`);
-        });
-      })
       .catch(error => {
         console.error(error);
       });    

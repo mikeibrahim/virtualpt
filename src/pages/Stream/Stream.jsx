@@ -2,8 +2,14 @@ import React from 'react';
 import Video from '../../components/Video.jsx';
 import * as tf from '@tensorflow/tfjs';
 
-export default function Stream() {
+export default function Stream(props) {
   let model;
+  const exercise = props.exercise; // {name, reps, vpt}
+  const name = exercise.name;
+  const reps = exercise.reps;
+  const vpt = exercise.vpt;
+  const incrementReps = props.incrementReps;
+  const alert = props.alert;
 
   const threshold = 0.2;
   const keypoints = {
@@ -45,6 +51,12 @@ export default function Stream() {
     l_calf: [keypoints.l_knee, keypoints.l_ankle],
     r_thigh: [keypoints.r_hip, keypoints.r_knee],
     r_calf: [keypoints.r_knee, keypoints.r_ankle]
+  }
+
+  const vptExercises = {
+    bicep_curl: {
+      connections: [connections.r_bicep, connections.r_forearm],
+    },
   }
 
   tf.loadGraphModel(process.env.PUBLIC_URL + '/model/model.json').then((m) => {
