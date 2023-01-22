@@ -5,20 +5,20 @@ import React, { useRef, useState } from 'react';
 export default function Workout() {
   let currReps = 0, currSets = 0, currWorkout = 0;
   const workoutTitle = useRef(), upcoming = useRef();
-  const setsCompleted = useRef(), progressbar = useRef();
+  const progressbar1 = useRef(), progressbar2 = useRef(), progressbar3 = useRef();
   const [idvpt, setIdvpt] = useState([workout[0].id, workout[0].vpt]);
 
-  console.log("asdf", idvpt)
   const nextRep = () => {
     console.log("nextRep");
     currReps++;
     currReps %= workout[currWorkout].reps;
-    progressbar.current.setAttribute("data-center", currReps + "/" + workout[currWorkout].reps);
+    progressbar2.current.style = `--value:${currReps / workout[currWorkout].reps * 100}`;
+    progressbar2.current.innerText = currReps + "/" + workout[currWorkout].reps;
     if (currReps === 0) {
       currSets++;
       currSets %= workout[currWorkout].sets;
-      setsCompleted.current.innerText = `Sets: ${currSets}/${workout[0].sets}`;
-      console.log(currSets);
+      progressbar3.current.style = `--value:${currSets / workout[currWorkout].sets * 100}`;
+      progressbar3.current.innerText = currSets + "/" + workout[currWorkout].sets;
       if (currSets === 0) {
         currWorkout++;
         workoutTitle.current.innerText = "Current: " + workout[currWorkout].title;
@@ -40,26 +40,27 @@ export default function Workout() {
       <Stream
         id={idvpt[0]} vpt={idvpt[1]}
         nextRep={nextRep} alert={alert}
-        changePercentage={p => progressbar.current.style = `--value:${p}`} />
+        changePercentage={p => {
+          progressbar1.current.innerText = `${Math.round(p)}%`;
+          progressbar1.current.style = `--value:${p}`;
+        }} />
       <div id="info-container">
         <p id="workout-title" ref={workoutTitle}>Current Set: {workout[0].title}</p>
         <p id="upcoming" ref={upcoming}>Upcoming: {workout[1].title}</p>
-        <p id="sets-completed" ref={setsCompleted}>Sets: 0/{workout[0].sets}</p>
         <div id="progressbar-container">
-          <div ref={progressbar} role="progressbar"
+          <div ref={progressbar1} role="progressbar"
             style={{ "--value": 0 }}>
-            <p className="fraction">0/{workout[0].reps}</p>
+            0%
+          </div>
+          <div ref={progressbar2} role="progressbar"
+            style={{ "--value": 0 }}>
+            0/{workout[0].reps}
             <p className="units">Reps</p>
           </div>
-          <div ref={progressbar} role="progressbar"
+          <div ref={progressbar3} role="progressbar"
             style={{ "--value": 0 }}>
-            <p className="fraction">0/{workout[0].reps}</p>
-            <p className="units">Reps</p>
-          </div>
-          <div ref={progressbar} role="progressbar"
-            style={{ "--value": 0 }}>
-            <p className="fraction">0/{workout[0].reps}</p>
-            <p className="units">Reps</p>
+            0/{workout[0].sets}
+            <p className="units">Sets</p>
           </div>
         </div>
       </div>
