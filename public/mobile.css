@@ -114,6 +114,9 @@ div[role="progressbar"] {
     ),
     conic-gradient(var(--fg) calc(var(--pgPercentage) * 1%), var(--bg) 0);
   color: var(--fg);
+}
+div[role="progressbar"] .fraction {
+  margin: 0;
   font-size: 27.5pt;
 }
 div[role="progressbar"] .units {
