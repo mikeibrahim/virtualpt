@@ -123,3 +123,9 @@ div[role="progressbar"] .units {
   margin: 0;
   font-size: 12.5pt;
 }
+
+#alert-container {
+  position: absolute;
+  bottom: 0;
+  margin: 10px;
+}

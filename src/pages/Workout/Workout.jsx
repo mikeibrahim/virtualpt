@@ -1,7 +1,7 @@
 import Stream from '../Stream/Stream';
 import workout from './workout.json';
 import React, { useRef, useState } from 'react';
-import alertIcon from ''
+import warning from './warning.svg';
 
 export default function Workout() {
   let currReps = 0, currSets = 0;
@@ -34,7 +34,7 @@ export default function Workout() {
 
   const alert = message => {
     console.log(`alert: ${message}`);
-    alerts.current.appendChild(<Alert message={message} />);
+    // alerts.current.appendChild(<Alert message={message} />);
   };
 
   return (
@@ -69,18 +69,16 @@ export default function Workout() {
           </div>
         </div>
       </div>
-      <div id="alerts" ref={alerts}></div>
+      <div id="alert-container" ref={alerts}></div>
       {/* <button id="next-button">Next →</button> */}
       <canvas />
     </>
   );
 }
 
-const Alert = message => {
-  return (
-    <div class="alert">
-      <img src={alertIcon} alt="Alert Icon" />
-      {message}
-    </div>
-  );
-}
+const Alert = message => (
+  <div class="alert">
+    <img src={warning} alt="Alert Icon" />
+    {message}
+  </div>
+);
