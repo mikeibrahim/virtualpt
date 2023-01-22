@@ -128,10 +128,10 @@ body {
   transform: scaleX(-1);
 }
 .workout #output {
-  width: 100vw;
-  height: 100vw;
+  width: 100vh;
+  height: 100vh;
+  transform: translateX(-25vh);
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 1;
 }
