@@ -13,14 +13,16 @@ const constraints = {
 function Video(props) {
   let video = React.createRef();
 
-  const playVideo = () => video.current.play();
+  const playVideo = () => {
+    video.current.play()
+    props.playCallback()
+  };
 
-  if (!navigator.mediaDevices) {
+  if (!navigator.mediaDevices)
     console.log("Sorry, getUserMedia is not supported");
-  } else {
+  else
     navigator.mediaDevices.getUserMedia(constraints)
       .then(stream => { if (video.current && !video.current.srcObject) { video.current.srcObject = stream; } })
-  }
 
   return (
     <video id='video' ref={video} autoPlay playsInline onCanPlay={playVideo} />

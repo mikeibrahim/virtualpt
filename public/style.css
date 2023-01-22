@@ -119,3 +119,9 @@ body {
   flex-direction: column;
   justify-content: space-between;
 }
+ .workout #output {
+  position: absolute;
+ }
+ .workout #video {
+  display: none;
+ }
