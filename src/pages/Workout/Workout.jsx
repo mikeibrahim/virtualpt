@@ -12,6 +12,7 @@ export default function Workout() {
     console.log("nextRep");
     currReps++;
     currReps %= workout[currWorkout].reps;
+    progressbar.current.setAttribute("data-center", currReps + "/" + workout[currWorkout].reps);
     if (currReps === 0) {
       currSets++;
       currSets %= workout[currWorkout].sets;
@@ -44,7 +45,9 @@ export default function Workout() {
         <p id="workout-title" ref={workoutTitle}>Current Set: {workout[0].title}</p>
         <p id="upcoming" ref={upcoming}>Upcoming: {workout[1].title}</p>
       </div>
-      <div ref={progressbar} role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style={{ "--value": 50 }}></div>
+      <div ref={progressbar} role="progressbar"
+        aria-valuenow="70" aria-valuemin="0" aria-valuemax="100"
+        data-center={`0/${workout[0].reps}`} style={{ "--value": 50 }}></div>
       {/* <button id="next-button">Next →</button> */}
       <canvas />
     </>
