@@ -3,12 +3,8 @@ import workout from './workout.json';
 import React from 'react';
 
 export default function Workout() {
-  const [currentExercise, setCurrentExercise] = React.useState(0);
-  const [currentRep, setCurrentRep] = React.useState(0);
-
   const nextRep = () => {
     console.log("nextRep");
-    setCurrentRep(currentRep + 1);
   }
 
   const alert = () => {
@@ -17,7 +13,7 @@ export default function Workout() {
 
   return (
     <div>
-      <Stream exercise={workout[currentExercise]} nextRep={nextRep} alert={alert} />
+      <Stream name={workout[0].name} vpt={workout[0].vpt} nextRep={nextRep} alert={alert} />
     </div>
   );
 }
