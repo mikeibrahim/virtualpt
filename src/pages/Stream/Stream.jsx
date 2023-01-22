@@ -6,6 +6,7 @@ export default function Stream({ id, vpt, nextRep, alertCallback, changePercenta
   const [model, setModel] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const [repComplete, setRepComplete] = useState(false);
+  let alerted = false;
   let repTime = 0;
 
   const threshold = 0.2;
@@ -102,13 +103,13 @@ export default function Stream({ id, vpt, nextRep, alertCallback, changePercenta
     "right_bicep_curl": {
       connections: [connections.r_bicep, connections.r_forearm],
       highlightConnections: [[connections.r_bicep, connections.r_forearm]],
-      endRepThreshold: 0.5,
+      endRepThreshold: 0.95,
       startRepThreshold: 0.05,
       calcExtension: (keypointData) => {
         // return Math.min((1 - endToEndLength / (length1 + length2)) / 0.5, 1);
         const [keypoint1, keypoint2] = getKeypoints(keypointData, connections.r_bicep);
         const [keypoint3, keypoint4] = getKeypoints(keypointData, connections.r_forearm);
-        const { angle, line1, line2, length1, length2, endToEndLength } = getConnectionData(keypoint1, keypoint2, keypoint3, keypoint4);
+        const { length1, length2, endToEndLength } = getConnectionData(keypoint1, keypoint2, keypoint3, keypoint4);
         return Math.min((1 - endToEndLength / (length1 + length2)) / 0.5, 1);
       },
       alert: (keypointData) => { }
@@ -116,13 +117,13 @@ export default function Stream({ id, vpt, nextRep, alertCallback, changePercenta
     "left_bicep_curl": {
       connections: [connections.l_bicep, connections.l_forearm],
       highlightConnections: [[connections.l_bicep, connections.l_forearm]],
-      endRepThreshold: 0.5,
+      endRepThreshold: 0.95,
       startRepThreshold: 0.05,
       calcExtension: (keypointData) => {
         // return Math.min((1 - endToEndLength / (length1 + length2)) / 0.5, 1);
         const [keypoint1, keypoint2] = getKeypoints(keypointData, connections.l_bicep);
         const [keypoint3, keypoint4] = getKeypoints(keypointData, connections.l_forearm);
-        const { angle, line1, line2, length1, length2, endToEndLength } = getConnectionData(keypoint1, keypoint2, keypoint3, keypoint4);
+        const { length1, length2, endToEndLength } = getConnectionData(keypoint1, keypoint2, keypoint3, keypoint4);
         return Math.min((1 - endToEndLength / (length1 + length2)) / 0.5, 1);
       },
       alert: (keypointData) => { }
@@ -130,21 +131,22 @@ export default function Stream({ id, vpt, nextRep, alertCallback, changePercenta
     "squats": {
       connections: [connections.r_thigh, connections.r_calf],
       highlightConnections: [[connections.r_thigh, connections.r_calf], [connections.l_thigh, connections.l_calf]],
-      endRepThreshold: 0.5,
+      endRepThreshold: 0.95,
       startRepThreshold: 0.05,
       calcExtension: (keypointData) => {
         // return 1 - Math.max(angle - 90, 0) / 90
         const [keypoint1, keypoint2] = getKeypoints(keypointData, connections.r_thigh);
         const [keypoint3, keypoint4] = getKeypoints(keypointData, connections.r_calf);
-        const { angle, line1, line2, length1, length2, endToEndLength } = getConnectionData(keypoint1, keypoint2, keypoint3, keypoint4);
+        const { angle } = getConnectionData(keypoint1, keypoint2, keypoint3, keypoint4);
         return 1 - Math.max(angle - 90, 0) / 90;
       },
       alert: (keypointData) => {
         const [keypoint1, keypoint2] = getKeypoints(keypointData, connections.r_side);
         const line = getLine(keypoint1, keypoint2);
         const slope = getLineSlope(line);
-        if (slope < 0.3) {
+        if (slope < 0.3 && !alerted) {
           alertCallback('Keep your back straight')
+          alerted = true;
         }
       }
     },
