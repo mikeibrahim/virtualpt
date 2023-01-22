@@ -57,19 +57,23 @@ export default function Stream(props) {
       connections: [connections.r_bicep, connections.r_forearm],
       endRepThreshold: 0.5,
       startRepThreshold: 0.05,
-      calcExtension: (c1Length, c2Length, endToEndLength) => {
+      endIncRepThreshold: 0.,
+      calcExtension: (angle, c1Length, c2Length, endToEndLength) => {
         return 1 - endToEndLength / (c1Length + c2Length);
       }
     },
   }
 
-  tf.loadGraphModel(process.env.PUBLIC_URL + '/model/model.json').then((m) => {
-    model = m;
-  });
-
   const startDetecting = () => {
     if (!model) {
       console.log('model not loaded');
+      tf.loadGraphModel(process.env.PUBLIC_URL + '/model/model.json').then((m) => {
+        model = m;
+        console.log('model loaded')
+        startDetecting();
+      }).catch((err) => {
+        console.log(err);
+      });
       return;
     }
     if (!vpt) {
@@ -166,10 +170,13 @@ export default function Stream(props) {
     const { x: x4, y: y4 } = keypoint4.position;
     const c1Line = { x: x2 - x1, y: y2 - y1 };
     const c2Line = { x: x4 - x3, y: y4 - y3 };
+    const angle_rad = Math.atan2(c1Line.x * c2Line.y - c1Line.y * c2Line.x, c1Line.x * c2Line.x + c1Line.y * c2Line.y);
+    const angle = 180 - Math.abs(angle_rad * 180 / Math.PI);
     const c1Length = Math.sqrt(Math.pow(c1Line.x, 2) + Math.pow(c1Line.y, 2));
     const c2Length = Math.sqrt(Math.pow(c2Line.x, 2) + Math.pow(c2Line.y, 2));
     const endToEndLength = Math.sqrt(Math.pow(x1 - x4, 2) + Math.pow(y1 - y4, 2));
-    const extensionAmount = calcExtension(c1Length, c2Length, endToEndLength);
+    const extensionAmount = calcExtension(angle, c1Length, c2Length, endToEndLength);
+    
     if (extensionAmount > endRepThreshold && !repComplete) {
       repComplete = true;
       nextRep();
@@ -189,16 +196,14 @@ export default function Stream(props) {
     ctx.lineWidth = 10;
     ctx.strokeStyle = 'orange';
     ctx.stroke();
-    // // draw the angle
-    // const angle = Math.atan2(c1Line.x * c2Line.y - c1Line.y * c2Line.x, c1Line.x * c2Line.x + c1Line.y * c2Line.y);
-    // const angle_deg = (180 + angle * 180 / Math.PI) % 180;
-    // ctx.beginPath();
-    // ctx.arc(x2, y2, 10, 0, 2 * Math.PI);
-    // ctx.fillStyle = 'orange';
-    // ctx.fill();
-    // ctx.font = "30px Arial";
-    // ctx.fillStyle = "black";
-    // ctx.fillText(angle_deg.toFixed(0), x2, y2);
+    // draw the angle
+    ctx.beginPath();
+    ctx.arc(x2, y2, 10, 0, 2 * Math.PI);
+    ctx.fillStyle = 'orange';
+    ctx.fill();
+    ctx.font = "30px Arial";
+    ctx.fillStyle = "black";
+    ctx.fillText(angle.toFixed(0), x2, y2);
     // draw the distance from the farthest points
     ctx.beginPath();
     ctx.arc(x4, y4, 10, 0, 2 * Math.PI);

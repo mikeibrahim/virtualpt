@@ -7,7 +7,7 @@ const constraints = {
     width: { max: 600 },
     height: { max: 600 },
     // facingMode: 'environment' // or 'environment'
-    deviceId: { exact: '8834c0baaf0dbecefbcfbb5831bc76f2a6ddac992803a36c36e8917014709c29' } // webcam
+    // deviceId: { exact: '8834c0baaf0dbecefbcfbb5831bc76f2a6ddac992803a36c36e8917014709c29' } // webcam
     // deviceId: { exact: '4a219b2d248c56c039e55cb378188fef9514fb8be5eb3731472bcb74352185ea' } // mac
   }
 }
