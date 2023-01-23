@@ -49,10 +49,10 @@ export default function Workout() {
           progressbar1.current.style = `--value:${p}`;
         }} />
       <div id="info-container">
-        <p id="workout-title" ref={workoutTitle}>Current Set: {workout[currWorkout].title}</p>
+        <p id="workout-title" ref={workoutTitle}>Current Set...<br/>{workout[currWorkout].title}</p>
         <p id="upcoming" ref={upcoming}>
           {currWorkout + 1 < workout.length ?
-            `Upcoming: ${workout[currWorkout + 1].title}` :
+            <>Upcoming...<br/>{workout[currWorkout + 1].title}</> :
             "Last set!"}</p>
         <div id="progressbar-container">
           <div ref={progressbar1} role="progressbar"

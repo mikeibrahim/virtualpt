@@ -6,7 +6,7 @@ export default function Stream({ id, vpt, nextRep, alertCallback, changePercenta
   const [model, setModel] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const [repComplete, setRepComplete] = useState(false);
-  let alerted = false;
+  const [alerted, setAlerted] = useState(false);
   let repTime = 0;
 
   const threshold = 0.2;
@@ -103,7 +103,7 @@ export default function Stream({ id, vpt, nextRep, alertCallback, changePercenta
     "right_bicep_curl": {
       connections: [connections.r_bicep, connections.r_forearm],
       highlightConnections: [[connections.r_bicep, connections.r_forearm]],
-      endRepThreshold: 0.95,
+      endRepThreshold: 0.99,
       startRepThreshold: 0.05,
       calcExtension: (keypointData) => {
         // return Math.min((1 - endToEndLength / (length1 + length2)) / 0.5, 1);
@@ -131,8 +131,8 @@ export default function Stream({ id, vpt, nextRep, alertCallback, changePercenta
     "squats": {
       connections: [connections.r_thigh, connections.r_calf],
       highlightConnections: [[connections.r_thigh, connections.r_calf], [connections.l_thigh, connections.l_calf]],
-      endRepThreshold: 0.95,
-      startRepThreshold: 0.05,
+      endRepThreshold: 0.99,
+      startRepThreshold: 0.1,
       calcExtension: (keypointData) => {
         // return 1 - Math.max(angle - 90, 0) / 90
         const [keypoint1, keypoint2] = getKeypoints(keypointData, connections.r_thigh);
@@ -146,7 +146,7 @@ export default function Stream({ id, vpt, nextRep, alertCallback, changePercenta
         const slope = getLineSlope(line);
         if (slope < 0.3 && !alerted) {
           alertCallback('Keep your back straight')
-          alerted = true;
+          setAlerted(true);
         }
       }
     },
@@ -265,6 +265,7 @@ export default function Stream({ id, vpt, nextRep, alertCallback, changePercenta
         alertCallback('You are going too fast! Try to slow down a bit.')
       }
       setRepComplete(true);
+      setAlerted(false);
     } else if (extensionAmount < startRepThreshold) {
       repTime = 0;
       if (repComplete)
